@@ -1,0 +1,17 @@
+name: Man10BattleRoyale
+version: @version@
+main: ltotj.minecraft.man10battleroyale.Main
+api-version: 1.17
+commands:
+  mbat:
+    usage:
+  mbrop:
+    usage:
+  mbredit:
+    usage:
+
+permissions:
+  mbattle.op:
+    default: op
+  mbattle.player:
+    default: true

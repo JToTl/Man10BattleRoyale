@@ -44,7 +44,6 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
     val restrictedItemsMax=hashMapOf(Pair(Material.IRON_HOE,2))//あとで色々できるようにしたい
 
     init {
-
         //タイマー作成
         for(phase in field.phases.keys){
             val phaseData=field.phases[phase]!!
@@ -96,7 +95,7 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
             }
             else{
                 executeTimer.addEndEvent{
-                    bossBar.setTitle("最終エリアです！")
+                    bossBar.setTitle("§c§l最終エリア")
                     bossBar.color=BarColor.RED
                     bossBar.progress=1.0
                 }
@@ -180,9 +179,12 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
 
     private fun setScoreboard(){
         Bukkit.getScheduler().runTask(Main.plugin,Runnable{
-        val scoreboard=Bukkit.getScoreboardManager().newScoreboard
-        for(plData in livingPlayers.values){
-            val objective=scoreboard.registerNewObjective("§d§Man10Battle","Dummy",Component.text(Main.pluginTitle))
+        for(plData in playerList.values){
+            val scoreboard=Bukkit.getScoreboardManager().newScoreboard
+            var objective=scoreboard.getObjective("§d§Man10Battle")
+            if(objective==null){
+                objective=scoreboard.registerNewObjective("§d§Man10Battle","Dummy",Component.text(Main.pluginTitle))
+            }
             val distances=plData.getDistanceToAreaAndCenter()
             objective.displaySlot=DisplaySlot.SIDEBAR
             objective.getScore("§6§l残り人数 : ${livingPlayers.size}人").score=0

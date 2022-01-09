@@ -217,8 +217,8 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
     @EventHandler
     fun onQuit(e: PlayerQuitEvent){
         if(battle.inGame()){
-            battle.livingPlayers[e.player.uniqueId]?.death(null)
-            battle.field.broadcastMessage("${Main.plugin}${e.player.name}はログアウトしたため死亡扱いとなります}")
+            battle.livingPlayers[e.player.uniqueId]?.death(null)?:return
+            battle.field.broadcastMessage("${Main.pluginTitle}${e.player.name}はログアウトしたため死亡扱いとなります}")
         }
         else if(!battle.isEnding){
             battle.removePlayer(e.player)

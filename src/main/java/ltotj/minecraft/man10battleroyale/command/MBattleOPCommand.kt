@@ -151,7 +151,6 @@ class MBattleOPCommand(plugin: JavaPlugin, pluginTitle: String) :CommandManager(
                                         }
                         )
         )
-
         addFirstArgument(
                 CommandObject("max")
                         .setNullable(true)
@@ -163,7 +162,7 @@ class MBattleOPCommand(plugin: JavaPlugin, pluginTitle: String) :CommandManager(
                                         .setExplanation("参加可能回数の確認・変更")
                                         .setComment("参加可能回数")
                                         .setFunction{
-                                            val times=it.second[2].toInt()
+                                            val times=it.second[1].toInt()
                                             if(times<1){
                                                 it.first.sendMessage("${Main.pluginTitle}§a1以上のを入力してください")
                                                 return@setFunction

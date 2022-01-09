@@ -125,9 +125,7 @@ class TimerManager {
     }
 
     fun start(){
-        println("通った")
         if(isRunning){
-            println("通っちゃった")
             return
         }
         isRunning=true

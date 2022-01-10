@@ -45,13 +45,28 @@ class MBattleOPCommand(plugin: JavaPlugin, pluginTitle: String) :CommandManager(
                                         )
                         )
         )
+
         addFirstArgument(
                 CommandObject("start")
                         .setExplanation("バトルロワイヤルを開始")
+                        .setFunction{
+                            if (exitBattleRoyale(it.first)) {
+                                if (!Main.battleRoyale!!.preStart()) {
+                                    it.first.sendMessage("${Main.pluginTitle}§4既に開始されています")
+                                    return@setFunction
+                                }
+                                Main.battleRoyale!!.generateLootChest()
+                            }
+                        }
+        )
+
+        addFirstArgument(
+                CommandObject("forceStart")
+                        .setExplanation("バトルロワイヤルを即座に開始")
                         .setFunction {
                             if (exitBattleRoyale(it.first)) {
-                                if (!Main.battleRoyale!!.generatedChest) {
-                                    it.first.sendMessage("${Main.pluginTitle}§4チェストが生成されていません")
+                                if(Main.battleRoyale!!.preStart){
+                                    it.first.sendMessage("${Main.pluginTitle}§4既に開始されています")
                                     return@setFunction
                                 }
                                 if (!Main.battleRoyale!!.start()) {
@@ -173,6 +188,18 @@ class MBattleOPCommand(plugin: JavaPlugin, pluginTitle: String) :CommandManager(
                         )
         )
 
-
+        addFirstArgument(
+                CommandObject("list")
+                        .setExplanation("参加者の一覧を表示")
+                        .setFunction{
+                            if(exitBattleRoyale(it.first)){
+                                it.first.sendMessage("${Main.pluginTitle}§a参加者は以下の通りです")
+                                for(data in Main.battleRoyale!!.playerList.values){
+                                    it.first.sendMessage(data.player.name)
+                                }
+                                it.first.sendMessage("${Main.pluginTitle}§a計§c${Main.battleRoyale!!.playerList.size}名")
+                            }
+                        }
+        )
     }
 }

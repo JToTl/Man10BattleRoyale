@@ -91,21 +91,22 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
         }
     }
 
-//    @EventHandler
-//    fun onDamageOnShip(e:EntityDamageEvent){
-//        if(battle.inGame()){
-//            val entity=e.entity
-//        }
-//    }
-
     @EventHandler
     fun onDropFromShip(e:EntityDismountEvent){
-        if(battle.inGame()){
-            val entity=e.entity
-            if(entity is Player&&ItemStackPlus(entity.inventory.chestplate?:return).getNBTInt("ShipElytra",Main.plugin)==1){
-                entity.location.add(0.0,-4.0,0.0)
-                entity.isGliding=true
-                if(e.dismounted.name=="dropship"){
+        if(battle.inGame()) {
+
+            //開始直後は降りられないように
+            if(!battle.canDrop){
+                e.isCancelled=true
+                return
+            }
+
+            val entity = e.entity
+            if (entity is Player && ItemStackPlus(entity.inventory.chestplate
+                            ?: return).getNBTInt("ShipElytra", Main.plugin) == 1) {
+                entity.location.add(0.0, -4.0, 0.0)
+                entity.isGliding = true
+                if (e.dismounted.name == "dropship") {
                     e.dismounted.remove()
                 }
             }
@@ -222,7 +223,6 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
         }
         else if(!battle.isEnding){
             battle.removePlayer(e.player)
-            battle.field.broadcastMessage("${Main.pluginTitle}${e.player.name}§aはログアウトしたため参加者から外されました")
         }
     }
     //死亡関連のイベント群

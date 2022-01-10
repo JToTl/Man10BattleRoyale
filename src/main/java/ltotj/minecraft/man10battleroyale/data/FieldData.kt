@@ -4,10 +4,8 @@ import com.google.common.math.IntMath.pow
 import ltotj.minecraft.man10battleroyale.Main
 import ltotj.minecraft.man10battleroyale.utility.ConfigManager.ConfigManager
 import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.NamespacedKey
+import net.kyori.adventure.title.Title
+import org.bukkit.*
 import org.bukkit.block.Chest
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
@@ -134,6 +132,7 @@ class FieldData(configManager: ConfigManager,val lootChestKey:String){
         broadcastMessage("§4エリア収縮が始まります！")
         broadcastMessage(" ");
         broadcastMessage("§4==================")
+        broadcastSound(Sound.ENTITY_WITHER_SPAWN,1F,1F)
         setWBSize(2*nextWidth,time)
     }
 
@@ -165,6 +164,16 @@ class FieldData(configManager: ConfigManager,val lootChestKey:String){
 
     fun broadcastMessage(message: String){
         area.sendMessage(Component.text(message))
+    }
+
+    fun broadcastTitle(title: String,subTitle:String){
+        area.showTitle(Title.title(Component.text(title),Component.text(subTitle),Title.DEFAULT_TIMES))
+    }
+
+    fun broadcastSound(sound: Sound, volume:Float, pitch:Float){
+        for(player in area.players){
+            player.playSound(player.location,sound,volume, pitch)
+        }
     }
 
     fun setLootChest(){

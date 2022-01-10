@@ -29,7 +29,7 @@ class MBattleCommand(plugin: JavaPlugin,pluginTitle:String) :CommandManager(plug
                                 sender.sendMessage("${Main.pluginTitle}§4既に参加しているか、参加可能期間を過ぎています")
                                 return@setFunction
                             }
-                            if(Main.participationHistory[sender.uniqueId]?:0>Main.maxParticipationTimes){
+                            if(Main.participationHistory[sender.uniqueId]?:0>=Main.maxParticipationTimes){
                                 sender.sendMessage("${Main.pluginTitle}§4参加可能な回数を超過しています")
                                 return@setFunction
                             }

@@ -8,6 +8,7 @@ import ltotj.minecraft.man10battleroyale.utility.TimeManager.TimerManager
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarFlag
 import org.bukkit.boss.BarStyle
@@ -25,15 +26,19 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
     val playerList=HashMap<UUID,PlayerData>()
     val livingPlayers=HashMap<UUID, PlayerData>()
     val deadPlayers=HashMap<UUID, PlayerData>()
+    val ranking=ArrayList<PlayerData>()
     val field=FieldData(ConfigManager(Main.plugin, fieldName),lootName)
+    var preStart=false
     var isRunning=false
     var isEnding=false
     var canSpecMovement=false
     var keepInv=false
     val onBattleEvent = OnBattleEvent(this)
+    var canDrop=false
 
     var generatedChest=false
 
+    private val preStartTimer=TimerManager()
     private val startTimer=TimerManager()
     private val areaTimers=HashMap<Int, Pair<TimerManager, TimerManager>>()
     private val carePackageTimer=TimerManager()
@@ -102,10 +107,42 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
             }
         }
 
+        preStartTimer
+                .addRemainingTime(10)
+                .addIntervalEvent(1) {
+                    when (val rem = preStartTimer.getRemainingTime()) {
+                        3 -> {
+                            field.broadcastTitle("§e>>> §f3 §e<<<", "")
+                            field.broadcastSound(Sound.BLOCK_STONE_BUTTON_CLICK_OFF, 1F, 2F)
+                        }
+                        2 -> {
+                            field.broadcastTitle("§e>> §f2 §e<<", "")
+                            field.broadcastSound(Sound.BLOCK_STONE_BUTTON_CLICK_OFF, 1F, 2F)
+                        }
+                        1 -> {
+                            field.broadcastTitle("§e> §f1 §e<", "")
+                            field.broadcastSound(Sound.BLOCK_STONE_BUTTON_CLICK_OFF, 1F, 2F)
+                        }
+                        else -> {
+                            field.broadcastTitle(">>> $rem <<<", "")
+                            field.broadcastSound(Sound.BLOCK_STONE_BUTTON_CLICK_OFF, 1F, 1F)
+                        }
+                    }
+                }
+                .addEndEvent{
+                    field.broadcastTitle("§e§lSTART!", "")
+                    field.broadcastSound(Sound.ENTITY_WITHER_SPAWN,1F,1F)
+                    Bukkit.getScheduler().runTask(Main.plugin,Runnable{
+                        start()
+                    })
+                }
+
         startTimer
                 .addRemainingTime(field.firstAreaWaitTime)
                 .addStartEvent{
                     field.setFirstWB()
+                    Thread.sleep(1000L)
+                    canDrop=true
                 }
                 .addEndEvent{
                     deleteShip()
@@ -138,15 +175,7 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
                     Thread.sleep(2000L)
                     field.broadcastMessage("${Main.pluginTitle}順位を表示します")
                     Thread.sleep(1000L)
-                    var d=0
-                    if(livingPlayers.isNotEmpty()) {
-                        field.broadcastMessage("${Main.pluginTitle}§61位： §c${livingPlayers.values.elementAt(0).player.name}")
-                        d=1
-                    }
-                    for(i in 1 until 6-d){
-                        if(deadPlayers.size-i<0)break
-                        field.broadcastMessage("${Main.pluginTitle}§6${i}位： §c${deadPlayers.values.elementAt(deadPlayers.size-i).player.name}")
-                    }
+                    showMainRanking()
                 }
     }
 
@@ -267,6 +296,13 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
         }
     }
 
+    fun preStart():Boolean{
+        if(isRunning||preStart)return false
+        preStart=true
+        preStartTimer.start()
+        return true
+    }
+
     //メインから
     fun start():Boolean{
         if(isRunning)return false
@@ -276,6 +312,9 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
             bossBar.addPlayer(playerData.player)
             livingPlayers[playerData.player.uniqueId]=playerData
             playerData.initializePlStatus()
+        }
+        for(player in field.area.players){
+            bossBar.addPlayer(player)
         }
         for(item in field.area.entities){
             if(item.type==EntityType.DROPPED_ITEM){
@@ -295,6 +334,18 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
         removeDeathBoxes()
         bossBar.removeAll()
         return true
+    }
+
+    fun showMainRanking(){
+        var d=0
+        if(livingPlayers.isNotEmpty()) {
+            field.broadcastMessage("${Main.pluginTitle}§61位： §c${livingPlayers.values.elementAt(0).player.name}")
+            d=1
+        }
+        for(i in 1 until 6-d){
+            if(ranking.size-i<0)break
+            field.broadcastMessage("${Main.pluginTitle}§6${i+d}位： §c${ranking[ranking.size-i].player.name}")
+        }
     }
 
     fun delete(){

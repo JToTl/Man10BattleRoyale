@@ -44,6 +44,9 @@ class PlayerData(val player:Player, private val battle:Man10BattleRoyale){
     }
 
     fun death(killer:Player?){
+        if(battle.isEnding){
+            return
+        }
         battle.deadPlayers[player.uniqueId]=battle.playerList[player.uniqueId]!!
         battle.livingPlayers.remove(player.uniqueId)
         alive=false
@@ -54,6 +57,7 @@ class PlayerData(val player:Player, private val battle:Man10BattleRoyale){
         if(battle.livingPlayers.containsKey(killer?.uniqueId)){
             firstSpecTarget=this.killer
         }
+        battle.ranking.add(this)
         deadLoc=player.location.clone()
         setDeathBox()
         battle.checkEnd()

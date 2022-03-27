@@ -16,8 +16,7 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 import java.lang.Math.signum
 import java.security.SecureRandom
-import kotlin.math.sign
-import kotlin.math.sqrt
+import kotlin.math.*
 import kotlin.random.Random
 
 class FieldData(configManager: ConfigManager,val lootChestKey:String){
@@ -27,6 +26,8 @@ class FieldData(configManager: ConfigManager,val lootChestKey:String){
     var worldBorder=area.worldBorder
     var centerX=configManager.getDouble("firstCenter.X")
     var centerZ=configManager.getDouble("firstCenter.Z")
+
+    //一辺の1/2なので注意
     var firstWidth=configManager.getDouble("firstWidth")
     var generationRate=configManager.getDouble("generationRate")
     val randomTierWeight=HashMap<Int, Int>()
@@ -35,7 +36,9 @@ class FieldData(configManager: ConfigManager,val lootChestKey:String){
     var playerHealth=20
     var firstAreaWaitTime=10
     val phases=HashMap<Int, PhaseData>()
+    val maxTier=randomTierWeight.size-1
 
+    var randomVec=Vector(0,0,0)
 
     val currentCenter= arrayOf(centerX, centerZ)
     val nextCenter= arrayOf(0.0, 0.0)
@@ -44,7 +47,7 @@ class FieldData(configManager: ConfigManager,val lootChestKey:String){
 
     var currentPhase=1
 
-    private val lootChestPos=HashMap<Int, ArrayList<Location>>()
+    val lootChestPos=HashMap<Int, ArrayList<Location>>()
     private val carePackagePos=ArrayList<Location>()
     private val carePackEntity=ArrayList<Entity>()
 
@@ -254,6 +257,7 @@ class FieldData(configManager: ConfigManager,val lootChestKey:String){
                 armorS.isGlowing=true
                 armorS.customName = "subcarepackage"
                 carePackEntity.add(armorS)
+                broadcastMessage("${Main.pluginTitle}§c§lケアパッケージが§bX: §e${location.blockX}§b,Z: §e${location.blockZ}§c§lに投下されました！")
             })
         }
     }
@@ -282,5 +286,25 @@ class FieldData(configManager: ConfigManager,val lootChestKey:String){
             }
         })
     }
+
+    ///////////////
+    //最終エリアで使用
+    fun setRandomVec(){
+        val ran=java.util.Random().nextDouble() * 6.28
+        randomVec=Vector(0.3*cos(ran),0.0, 0.3*sin(ran))
+    }
+
+    //とりあえず反転させることにする
+    fun moveCenter(){
+        val length=(centerX-currentCenter[0]).pow(2)+(centerZ-currentCenter[1]).pow(2)
+        if(length>=firstWidth.pow(2)){
+            randomVec.multiply(-1)
+        }
+        currentCenter[0]=currentCenter[0]+randomVec.x
+        currentCenter[1]=currentCenter[1]+randomVec.z
+        setWBCenter(currentCenter[0],currentCenter[1])
+    }
+    //
+    //////////////
 
 }

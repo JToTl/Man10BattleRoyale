@@ -4,6 +4,7 @@ import ltotj.minecraft.man10battleroyale.command.MBattleCommand
 import ltotj.minecraft.man10battleroyale.command.MBattleEditCommand
 import ltotj.minecraft.man10battleroyale.command.MBattleOPCommand
 import ltotj.minecraft.man10battleroyale.data.EditField
+import ltotj.minecraft.man10battleroyale.table.edit.EditLootTable
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 import kotlin.collections.HashMap
@@ -16,6 +17,7 @@ class Main : JavaPlugin() {
         lateinit var plugin: JavaPlugin
         const val pluginTitle="§7§l[§6Man10Battle§7§l]§r";
         var editField: EditField?=null
+        var editLootTable:EditLootTable?=null
         val participationHistory=HashMap<UUID,Int>()
         var maxParticipationTimes=99
     }

@@ -50,6 +50,11 @@ open class MenuGUI: GUIInventory {
         return this
     }
 
+    fun removeAllChild(): MenuGUI{
+        children.clear()
+        return this
+    }
+
     fun openChildGUI(key:String,player: Player): MenuGUI {
         if(children.containsKey(key)){
             forceChangeGUI(player,children[key]!!)
@@ -66,11 +71,6 @@ open class MenuGUI: GUIInventory {
             return true
         }
         return false
-    }
-
-    fun deleteChild(key:String): MenuGUI {
-        children.remove(key)
-        return this
     }
 
     fun back(player:Player) {

@@ -26,7 +26,7 @@ abstract class GUIInventory(private val plugin: JavaPlugin,val row:Int,val title
 
     protected val inv=Bukkit.createInventory(null,row*9, Component.text(title))
 
-    protected val items=HashMap<Int, GUIItem>()
+    val items=HashMap<Int, GUIItem>()
 
     private val onCloseEvents=ArrayList<Consumer<InventoryCloseEvent>>()
     private val onForcedCloseEvents=ArrayList<Consumer<InventoryCloseEvent>>()
@@ -169,7 +169,6 @@ abstract class GUIInventory(private val plugin: JavaPlugin,val row:Int,val title
     }
 
     fun open(player:Player){
-        println("${title}のviewerは${inv.viewers.size}")
         if(inv.viewers.isEmpty()) {
             renderGUI()
             plugin.server.pluginManager.registerEvents(this,plugin)

@@ -201,5 +201,28 @@ class MBattleOPCommand(plugin: JavaPlugin, pluginTitle: String) :CommandManager(
                             }
                         }
         )
+
+        addFirstArgument(
+                CommandObject("debug")
+                        .setExplanation("デバッグ用")
+                        .addNextArgument(
+                                CommandObject("setSpecTarget")
+                                        .addNextArgument(
+                                                CommandObject(CommandArgumentType.ONLINE_PlAYER)
+                                                        .setComment("プレイヤー名")
+                                                        .setFunction{
+                                                            if(exitBattleRoyale(it.first)) {
+                                                                if (Main.battleRoyale!!.deadPlayers.containsKey(Bukkit.getPlayerUniqueId(it.second[2])?:return@setFunction)) {
+                                                                    Main.battleRoyale!!.deadPlayers[Bukkit.getPlayerUniqueId(it.second[2])!!]!!.setSpecTarget()
+                                                                    it.first.sendMessage("${Main.pluginTitle}§aセットしました")
+                                                                }
+                                                                else{
+                                                                    it.first.sendMessage("${Main.pluginTitle}§aプレイヤーが見つかりません")
+                                                                }
+                                                            }
+                                                        }
+                                        )
+                        )
+        )
     }
 }

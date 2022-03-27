@@ -32,7 +32,7 @@ class PlayerData(val player:Player, private val battle:Man10BattleRoyale){
 
     private fun getSpecTargetData():PlayerData?{
         if(battle.livingPlayers.isEmpty())return null
-        if(!alive&&killer==null&&firstSpecTarget==null)firstSpecTarget=battle.getRandomLivPl()
+        if((!alive&&killer==null)&&firstSpecTarget==null)firstSpecTarget=battle.getRandomLivPl()
         return if (alive) this else firstSpecTarget!!.getSpecTargetData()
     }
 
@@ -64,7 +64,7 @@ class PlayerData(val player:Player, private val battle:Man10BattleRoyale){
     }
 
     fun setSpecTarget(){
-        Bukkit.getPlayer(player.uniqueId)?.spectatorTarget=getSpecTargetData()?.player
+        Bukkit.getPlayer(player.uniqueId)?.setSpectatorTarget(getSpecTargetData()?.player)
     }
 
     fun setDeathBox(){
@@ -103,7 +103,7 @@ class PlayerData(val player:Player, private val battle:Man10BattleRoyale){
         player.gameMode=GameMode.ADVENTURE
         player.activePotionEffects.clear()
         player.health=20.0
-        player.saturation=20F
+        player.saturation=10F
         player.foodLevel=20
         player.inventory.chestplate=ItemStackPlus(Material.ELYTRA,1)
                 .setNBTInt("ShipElytra",1, Main.plugin)

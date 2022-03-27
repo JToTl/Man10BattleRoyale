@@ -7,12 +7,14 @@ import ltotj.minecraft.man10battleroyale.Main
 import ltotj.minecraft.man10battleroyale.Man10BattleRoyale
 import ltotj.minecraft.man10battleroyale.utility.ItemManager.ItemStackPlus
 import net.kyori.adventure.text.Component
+import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Chest
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
@@ -38,6 +40,23 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
     fun unregister(){
         HandlerList.unregisterAll(this)
     }
+
+    private val rightClickList=listOf(
+            Material.CHEST,
+            Material.TRAPPED_CHEST,
+            Material.OAK_TRAPDOOR,
+            Material.SPRUCE_TRAPDOOR,
+            Material.JUNGLE_TRAPDOOR,
+            Material.BIRCH_TRAPDOOR,
+            Material.ACACIA_TRAPDOOR,
+            Material.DARK_OAK_TRAPDOOR,
+            Material.OAK_DOOR,
+            Material.SPRUCE_DOOR,
+            Material.JUNGLE_DOOR,
+            Material.BIRCH_DOOR,
+            Material.ACACIA_DOOR,
+            Material.DARK_OAK_DOOR,
+    )
 
 
     //////////////////////////////////
@@ -139,7 +158,7 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
     //コンパスのイベント
     @EventHandler
     fun onRightClickCompass(e:PlayerInteractEvent){
-        if(battle.inGame()&&(e.action==Action.RIGHT_CLICK_BLOCK||e.action==Action.RIGHT_CLICK_AIR)&&e.hand==EquipmentSlot.HAND
+        if(battle.inGame()&&!battle.isLastArea&&(e.action==Action.RIGHT_CLICK_BLOCK||e.action==Action.RIGHT_CLICK_AIR)&&e.hand==EquipmentSlot.HAND
                 &&e.item?.type==Material.COMPASS&&battle.livingPlayers.containsKey(e.player.uniqueId)){
             val distance=battle.livingPlayers[e.player.uniqueId]!!.getDistanceToAreaAndCenter()
             e.player.compassTarget= Location(battle.field.area,battle.field.nextCenter[0],1.0,battle.field.nextCenter[1])
@@ -165,9 +184,8 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
             }
         }
     }
-    //
+    //デスボックスのイベント
     ////////////////////////////
-
 
     ////////////////////////////
     //スペクテイター関連のイベント群
@@ -185,7 +203,9 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
         //殺した人に乗り移る
         if(!battle.isEnding&&battle.deadPlayers.containsKey(e.player.uniqueId)){
             e.player.gameMode=GameMode.SPECTATOR
-            battle.deadPlayers[e.player.uniqueId]!!.setSpecTarget()
+            Bukkit.getScheduler().runTaskLater(Main.plugin,Runnable{
+                battle.deadPlayers[e.player.uniqueId]!!.setSpecTarget()
+            },1)
         }
     }
 
@@ -193,6 +213,9 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
     fun onStopSpec(e:PlayerStopSpectatingEntityEvent){
         if(battle.inGame()&&!battle.canSpecMovement&&e.player.gameMode==GameMode.SPECTATOR){
             battle.deadPlayers[e.player.uniqueId]?.setSpecTarget()
+            if(battle.livingPlayers.containsKey(e.player.spectatorTarget?.uniqueId)){
+                e.isCancelled=true
+            }
         }
     }
     //スペクテイター関連のイベント群
@@ -210,8 +233,11 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
 
     @EventHandler
     fun onDeath(e: PlayerDeathEvent){
-        if(battle.inGame()){
-            battle.livingPlayers[e.entity.uniqueId]?.death(e.entity.killer)
+        if(battle.inGame()&&battle.livingPlayers.containsKey(e.entity.uniqueId)) {
+            battle.livingPlayers[e.entity.uniqueId]!!.death(e.entity.killer)
+            if (e.entity.lastDamageCause?.cause== EntityDamageEvent.DamageCause.SUFFOCATION) {
+                e.deathMessage(Component.text("${e.entity.name}はエリアダメージを耐えることができなかった"))
+            }
         }
     }
 
@@ -241,7 +267,7 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
         }
     }
 
-    @EventHandler
+    @EventHandler(priority= EventPriority.MONITOR)
     fun onDrop(e:PlayerDropItemEvent){
         if(battle.inGame()&&!e.isCancelled){
             val pData=battle.playerList[e.player.uniqueId]?:return
@@ -289,7 +315,7 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
     //バトロワ中のスニーク・ブロック破壊制限イベント群
     @EventHandler
     fun onSprint(e:PlayerToggleSprintEvent){
-        if(battle.inGame()){
+        if(battle.inGame()&&battle.livingPlayers.containsKey(e.player.uniqueId)){
             if(e.player.isSneaking&&e.isSprinting){
                 e.player.isSneaking=false
             }
@@ -301,8 +327,21 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
 
     @EventHandler
     fun onSneak(e:PlayerToggleSneakEvent){
-        if(battle.inGame()){
+        if(battle.inGame()&&battle.livingPlayers.containsKey(e.player.uniqueId)){
             e.isCancelled=true
+            if (e.player.isSneaking && e.player.isSprinting){
+                e.player.isSneaking = true
+            }
+        }
+    }
+
+    @EventHandler
+    fun onRightClick(e:PlayerInteractEvent){
+        if(battle.inGame()&&rightClickList.contains(e.clickedBlock?.type)&&e.action==Action.RIGHT_CLICK_BLOCK){
+            e.player.isSneaking=false
+            Bukkit.getScheduler().runTaskLater(Main.plugin,Runnable{
+                e.player.isSneaking=true
+            },1)
         }
     }
 
@@ -314,14 +353,6 @@ class OnBattleEvent(private val battle: Man10BattleRoyale):Listener{
     }
     //バトロワ中のスニーク・ブロック破壊制限イベント群
     /////////////////////////////////////////
-
-
-
-
-
-
-
-
 
 
 }

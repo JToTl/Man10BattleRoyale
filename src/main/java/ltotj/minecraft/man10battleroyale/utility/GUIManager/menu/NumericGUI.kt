@@ -1,6 +1,7 @@
 package ltotj.minecraft.man10battleroyale.utility.GUIManager.menu
 
 import ltotj.minecraft.man10battleroyale.utility.GUIManager.GUIItem
+import ltotj.minecraft.man10battleroyale.utility.ItemManager.ItemStackPlus
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
@@ -9,119 +10,129 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder
 import java.io.ByteArrayInputStream
 import java.util.function.Consumer
 
-class NumericGUI: MenuGUI {
+open class NumericGUI: MenuGUI {
 
     constructor(plugin: JavaPlugin,  title:String):super(plugin, 6, title)
 
     constructor(plugin: JavaPlugin, title:String, parent: MenuGUI, key:String, isInstant:Boolean):super(plugin, 6, title, parent, key,isInstant)
 
     var inputNum=""
-    private var function:Consumer<Long>?=null
+    private var function:Consumer<Double>?=null
 
     init {
 
-//        setClickEvent { _, inventoryClickEvent ->
-//            inventoryClickEvent.isCancelled=true
-//            println(inputNum)
-//        }
-
         //0から9まで
-        setItem(46, GUIItem(getNumHead(0))
+        setItem(47, GUIItem(getButtonHead("0"))
                 .setEvent { _, _ ->
-                    if(inputNum.isNotEmpty()&&inputNum.length<9){
-                        sucNum(0)
+//                    if(inputNum.isNotEmpty()&&inputNum.length<9)
+                    if(inputNum.length<9){
+                        sucNum("0")
                         inputNum+=0
                     }
                 })
-        setItem(36, GUIItem(getNumHead(1))
+        setItem(37, GUIItem(getButtonHead("1"))
                 .setEvent { _, _ ->
                     if(inputNum.length<9){
-                        sucNum(1)
+                        sucNum("1")
                         inputNum+=1
                     }
                 })
-        setItem(37, GUIItem(getNumHead(2))
+        setItem(38, GUIItem(getButtonHead("2"))
                 .setEvent { _, _ ->
                     if(inputNum.length<9){
-                        sucNum(2)
+                        sucNum("2")
                         inputNum+=2
                     }
                 })
-        setItem(38, GUIItem(getNumHead(3))
+        setItem(39, GUIItem(getButtonHead("3"))
                 .setEvent { _, _ ->
                     if(inputNum.length<9){
-                        sucNum(3)
+                        sucNum("3")
                         inputNum+=3
                     }
                 })
-        setItem(27, GUIItem(getNumHead(4))
+        setItem(28, GUIItem(getButtonHead("4"))
                 .setEvent { _, _ ->
                     if(inputNum.length<9){
-                        sucNum(4)
+                        sucNum("4")
                         inputNum+=4
                     }
                 })
-        setItem(28, GUIItem(getNumHead(5))
+        setItem(29, GUIItem(getButtonHead("5"))
                 .setEvent { _, _ ->
                     if(inputNum.length<9){
-                        sucNum(5)
+                        sucNum("5")
                         inputNum+=5
                     }
                 })
-        setItem(29, GUIItem(getNumHead(6))
+        setItem(30, GUIItem(getButtonHead("6"))
                 .setEvent { _, _ ->
                     if(inputNum.length<9){
-                        sucNum(6)
+                        sucNum("6")
                         inputNum+=6
                     }
                 })
-        setItem(18, GUIItem(getNumHead(7))
+        setItem(19, GUIItem(getButtonHead("7"))
                 .setEvent { _, _ ->
                     if(inputNum.length<9){
-                        sucNum(7)
+                        sucNum("7")
                         inputNum+=7
                     }
                 })
-        setItem(19, GUIItem(getNumHead(8))
+        setItem(20, GUIItem(getButtonHead("8"))
                 .setEvent { _, _ ->
                     if(inputNum.length<9){
-                        sucNum(8)
+                        sucNum("8")
                         inputNum+=8
                     }
                 })
-        setItem(20, GUIItem(getNumHead(9))
+        setItem(21, GUIItem(getButtonHead("9"))
                 .setEvent { _, _ ->
                     if(inputNum.length<9){
-                        sucNum(9)
+                        sucNum("9")
                         inputNum+=9
                     }
                 })
-        setItem(45, GUIItem(getNumHead(-2))
+        setItem(46, GUIItem(getButtonHead("back"))
                 .setEvent { _, _ ->
                     if(inputNum.isNotEmpty()) {
                         backNum()
                         inputNum = inputNum.substring(0, inputNum.length - 1)
                     }
                 })
-        setItem(47, GUIItem(getNumHead(-1))
+        setItem(48, GUIItem(getButtonHead("enter"))
                 .setEvent{ _,_->
-                    function?.accept(inputNum.toLongOrNull()?:return@setEvent)
+                    function?.accept(inputNum.toDoubleOrNull()?:return@setEvent)
                 })
+        setItem(49, GUIItem(getButtonHead("point"))
+                .setEvent { _, _ ->
+                    if(inputNum.length<9){
+                        sucNum("point")
+                        inputNum+="."
+                    }
+                })
+        setItem(40, GUIItem(getButtonHead("minus"))
+                .setEvent { _, _ ->
+                    if(inputNum.length<9){
+                        sucNum("minus")
+                        inputNum+="-"
+                    }
+                })
+
         setClickEvent { _, inventoryClickEvent ->
             inventoryClickEvent.isCancelled=true
-            println(inputNum)
         }
     }
 
-    fun setOutput(action:Consumer<Long>): NumericGUI {
+    fun setOutput(action:Consumer<Double>): NumericGUI {
         function=action
         return this
     }
 
     //力技
-    private fun getNumHead(num: Int):ItemStack{
-        return when(num){
-            0->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+    protected fun getButtonHead(str:String):ItemStack{
+        return when(str){
+            "0"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -137,7 +148,7 @@ class NumericGUI: MenuGUI {
                     "QUhKS1RFV25rYXhScEZKWWJHWktTNlZmbGx4dmw3bG5oNjVLUkhabVZiaHlaNjJrVTVlNlc0NXVW\n" +
                     "YnVBZkhnWFU3Mm5nVitWcUVKbmxhZXlaWjJpWkZtaHJ5OERBemNEa21RTDBCSXZTalBPZkRpNTFx\n" +
                     "bGhVM3R1V3VQN2hNUVlHQUp0aUxzUUdBUUFB")?:ItemStack(Material.BARRIER)
-            1->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+            "1"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -153,7 +164,7 @@ class NumericGUI: MenuGUI {
                     "RFpMREJ5RWIxNmFscFJoU3RxWmhVUnVDRXFOL3drTW1rOTViNmJDYXFLMGxPTjRic3hKK0dEOU14\n" +
                     "Z2FDSXJFMFFTRjkzNG9TZjhKT0NrWGh5b0lIWVdSb3BNOEhpVDZuY0FGM0NNaXVISUNaVDQ0L25u\n" +
                     "OGVycjgrMzY3TGQvQi9nRHNSUW1MZ29CQUFBPQ==")?:ItemStack(Material.BARRIER)
-            2->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+            "2"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -169,7 +180,7 @@ class NumericGUI: MenuGUI {
                     "R2E5UElxZW1aRFZ2SWsxbGtTdWR5bm1LbVZ4YnZTY3BmNVJjSDhUR2FLdnRDUVlPN0hpaXBXc1Yz\n" +
                     "a3NKQkpQclJadUxKK3ZtUCtMYVpoYVRlNVhLYTlBY0FaSEpPRlBYSHllN0YzM24vbzFlSHp6ZjNx\n" +
                     "Zmh1QVAvdGRJWjBHQVFBQQ==")?:ItemStack(Material.BARRIER)
-            3->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+            "3"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -185,7 +196,7 @@ class NumericGUI: MenuGUI {
                     "YUJsWlhoQjRubkpvOWZGR0VFRVUwY1dqem10QXhLR29jT1oxdUxzaFNSZTR4b1BIRlNUU1ZoVVVF\n" +
                     "MGwvNHJ0dnpuekNMYXkxTTlSajdqTXRYRTVpeVVtOFFhQWR6Qk5WNTNKMjVPQS9WN1BOUCthWEw1\n" +
                     "L0I3K0RBSCtBTEYrMU5vR0FRQUE=")?:ItemStack(Material.BARRIER)
-            4->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+            "4"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -201,7 +212,7 @@ class NumericGUI: MenuGUI {
                     "YitLS3ZDVis0U3hicThTaVhXek1XSVNxcjVqR3BtWW92R3ZFaE5qSmpKU3lwOVNlTkh5V1ZtVXJl\n" +
                     "MFdCZDJYSkxTaTZuMjNORDJYR3d4MHk5WVFDYTdCRTBCcnVFY2Ivc1RGeitqMDlYMGZmYjgvWEdp\n" +
                     "cTkvYlQ0QS8yWGU0Q1FZQkFBQT0=")?:ItemStack(Material.BARRIER)
-            5->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+            "5"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -217,7 +228,7 @@ class NumericGUI: MenuGUI {
                     "bUtQcGdLTEdaSE9sTjA2RThuTmd0elRhZVJwc21rWlNiNUxtaDVPTmJHV1R4aGlqNi9Pc2JabVNh\n" +
                     "WTZneFRtd3g1R0dHbWVjRkRVbTVUYXdSd0I1ZGtZdzVjZVovbzkzenkrZmZOL2NQNTU5UUgrQU5G\n" +
                     "VUVJZkFnRUFBQT09")?:ItemStack(Material.BARRIER)
-            6->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+            "6"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -233,7 +244,7 @@ class NumericGUI: MenuGUI {
                     "eU5ySXBmZ3lIUXFRaHVtUnViYkVITkZVRVdyVHlCQjJUZ1JXbFRFdWFNVUlYZFVPRG8wV0lpeVZt\n" +
                     "RUJoWmxQUmFsRlpDNFp5NFd1RUpxY3Q0b1FjVStOZVlBVjNDS2R0T0pzL1FySGEzR0h6OHZibjdH\n" +
                     "OTQ5ZmdEK2g5RXd0QmdFQUFBPT0=")?:ItemStack(Material.BARRIER)
-            7->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+            "7"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -249,7 +260,7 @@ class NumericGUI: MenuGUI {
                     "T1hmT1lQTjJWNG9LV2YwNUxsUkxDQ1JFa1dSNjRrL2IxSWhJZm9reStvSUgwc3dqdlNZMFI3cHRu\n" +
                     "TDJ5Skljam9LRlgyY3FqaWdNdTQ5VSs4VWRJUXRYQTJkblRlWkFKekRNZDdxRXlmWDQ4K2ZtMS95\n" +
                     "OGVXa2w4M3RGUWI0QTNqSVF5VUdBUUFB\n")?:ItemStack(Material.BARRIER)
-            8->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+            "8"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -265,7 +276,7 @@ class NumericGUI: MenuGUI {
                     "MWZpb2wvbTFiekF3dkwzZ3RuTnRNc295YnZtVWxLSHBhRFp6Snh1V0thYXMrbHRoZW1paGJZWXRy\n" +
                     "UG1UdEhWRzlOcnJlYWhyS2dybC9SQlVkSmtTS3VTYzRDTXQ3RTZCN2dDazd4ZWpoeWZ2UHRmaDN0\n" +
                     "eCtQYjJldm56L3R2RGZBSCtzU3pKQW9CQUFBPQ==")?:ItemStack(Material.BARRIER)
-            9->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+            "9"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -281,7 +292,8 @@ class NumericGUI: MenuGUI {
                     "V29UblZmOEltdnJXUndZRFRXNDc0dHZUWXczQWkxZUJ6VWJoWW0yQnJWWHA5b2VPekp1STFWdC9W\n" +
                     "U0ptMkpMVDlqRmpGd1JIUk1mZWxaOXRhbHQ1MkxHMGJERkZ2a2lISnRzQ0hESWNBbG5LSjFGM0wy\n" +
                     "OGZWTm4xNUhoK2YzeDUvcmw4OWZnRDh2RXg4UUNnRUFBQT09\n")?:ItemStack(Material.BARRIER)
-            -1->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+
+            "enter"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -297,7 +309,8 @@ class NumericGUI: MenuGUI {
                     "Y2FPb25aUXNGVmNUM1dHQm5haWVEODVuK25SbHFaTHc5Snd4elFUSkZVeVNxOExLdjBMcGtPSDNm\n" +
                     "M3hrU0h5NFNtVWZrUEd2WWFtc1UyYjJEQ2RLU0pERkVvaWFEY1I1QlozUTUxSktwVWdJdkFXT2Jv\n" +
                     "Q09JRjlQRytQSEI0RVorK3Z2ZWpueFh2Ky9INzdLQUYrQVN0NmZmY0tBUUFB\n")?:ItemStack(Material.BARRIER)
-            -2->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
+
+            "back"->itemFromBase64("rO0ABXcEAAAAAXNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\n" +
                     "dAAPTGphdmEvdXRpbC9NYXA7eHBzcgA1Y29tLmdvb2dsZS5jb21tb24uY29sbGVjdC5JbW11dGFi\n" +
                     "bGVNYXAkU2VyaWFsaXplZEZvcm0AAAAAAAAAAAIAAlsABGtleXN0ABNbTGphdmEvbGFuZy9PYmpl\n" +
                     "Y3Q7WwAGdmFsdWVzcQB+AAR4cHVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAA\n" +
@@ -313,6 +326,8 @@ class NumericGUI: MenuGUI {
                     "WUU3WFNiK1FtUms0cVdDVDFDcmx6Uk1scVl4SXFHajk0SVkyYmtLN09JdEp4Q04vNUlSKzFGQ1M3\n" +
                     "T2dzVVhTY1BGT0ptMEplMnJRdW5Lam1kZXlYdXIyU2RFeGxTQ2lQZHJ6U3JscmwxaERnQlBiUlVw\n" +
                     "ODQrUDY5LzdwNzh6L2U4ZEdQRmJ6ZUF2d0JBd0xsbGdZQkFBQT0=\n")?:ItemStack(Material.BARRIER)
+            "minus"->itemFromBase64("")?: ItemStackPlus(Material.DIAMOND,1).setDisplay("§d- (仮置き)")
+            "point" ->itemFromBase64("")?:ItemStackPlus(Material.EMERALD,1).setDisplay("§d. (仮置き)")
             else -> ItemStack(Material.BARRIER)
         }
     }
@@ -325,11 +340,11 @@ class NumericGUI: MenuGUI {
         renderGUI()
     }
 
-    private fun sucNum(num:Int){
+    private fun sucNum(str:String){
         for(i in inputNum.length downTo 0){
             cloneItem(17-i,16-i)
         }
-        setItem(17, GUIItem(getNumHead(num)))
+        setItem(17, GUIItem(getButtonHead(str)))
         renderGUI()
     }
 
@@ -340,7 +355,7 @@ class NumericGUI: MenuGUI {
         setItem(to,items[from]!!)
     }
 
-    private fun itemFromBase64(data: String): ItemStack? = try {
+    protected fun itemFromBase64(data: String): ItemStack? = try {
         val inputStream = ByteArrayInputStream(Base64Coder.decodeLines(data))
         val dataInput = BukkitObjectInputStream(inputStream)
         val items = arrayOfNulls<ItemStack>(dataInput.readInt())

@@ -163,4 +163,13 @@ open class GUIItem: ItemStack {
         return meta.persistentDataContainer[NamespacedKey(plugin,namespacedKey), PersistentDataType.DOUBLE]?:0.0
     }
 
+    fun reload(){
+        if(gui==null)return
+        for(slot in gui().items.keys){
+            if(gui().items[slot]==this){
+                gui().renderItem(slot)
+            }
+        }
+    }
+
 }

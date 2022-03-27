@@ -20,6 +20,7 @@ import org.bukkit.util.Vector
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.collections.HashMap
+import kotlin.math.floor
 
 class Man10BattleRoyale(fieldName: String, lootName: String){
 
@@ -35,12 +36,14 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
     var keepInv=false
     val onBattleEvent = OnBattleEvent(this)
     var canDrop=false
+    var isLastArea=false
 
     var generatedChest=false
 
     private val preStartTimer=TimerManager()
     private val startTimer=TimerManager()
     private val areaTimers=HashMap<Int, Pair<TimerManager, TimerManager>>()
+    private val lastAreaTimers=Pair(TimerManager(), TimerManager())
     private val carePackageTimer=TimerManager()
     private val endTimer=TimerManager()
 
@@ -100,12 +103,43 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
             }
             else{
                 executeTimer.addEndEvent{
-                    bossBar.setTitle("§c§l最終エリア")
-                    bossBar.color=BarColor.RED
-                    bossBar.progress=1.0
+                    lastAreaTimers.first.start()
                 }
             }
         }
+
+        lastAreaTimers.first
+                .addRemainingTime(10)
+                .addStartEvent{
+                    isLastArea=true
+                }
+                .addIntervalEvent(1){
+                    if(isEnding){
+                        lastAreaTimers.first.setRemainingTime(0)
+                        return@addIntervalEvent
+                    }
+                    setBossBar(20, lastAreaTimers.first.getRemainingTime(), "§c§l最終エリア開始", BarColor.GREEN)
+                }
+                .addEndEvent{
+                    lastAreaTimers.second.start()
+                }
+
+        lastAreaTimers.second
+                .addRemainingTime(9999999)
+                .addStartEvent{
+                    bossBar.setTitle("§c§l最終エリア")
+                    bossBar.color=BarColor.RED
+                    bossBar.progress=1.0
+                    field.setRandomVec()
+                }
+                .setUnitTime(400)
+                .addIntervalEvent(1){
+                    if(isEnding){
+                        lastAreaTimers.first.setRemainingTime(0)
+                        return@addIntervalEvent
+                    }
+                    field.moveCenter()
+                }
 
         preStartTimer
                 .addRemainingTime(10)
@@ -217,8 +251,10 @@ class Man10BattleRoyale(fieldName: String, lootName: String){
             val distances=plData.getDistanceToAreaAndCenter()
             objective.displaySlot=DisplaySlot.SIDEBAR
             objective.getScore("§6§l残り人数 : ${livingPlayers.size}人").score=0
-            objective.getScore("§a§l中心座標まであと§b§l${distances.second}M").score=-1
-            objective.getScore(if(distances.first==0.0)"§dエリア内に滞在中" else "§aエリア内まであと§b${distances.first}M").score=-2
+            objective.getScore("§a§lあなたの現在座標 X: §e${plData.player.location.blockX}§a§l,Z: §e${plData.player.location.blockZ}").score=-1
+            objective.getScore("§a§l中心座標 X: §e${floor(field.nextCenter[0])}§a§l,Z: §e${floor(field.nextCenter[1])}").score=-2
+            objective.getScore("§a§l中心座標まであと§b§l${distances.second}M").score=-3
+            objective.getScore(if(distances.first==0.0)"§dエリア内に滞在中" else "§aエリア内まであと§b${distances.first}M").score=-4
 //            objective.getScore("§b§lマップ ： ${field.area.name}").score=-3
             plData.player.scoreboard=scoreboard
         }

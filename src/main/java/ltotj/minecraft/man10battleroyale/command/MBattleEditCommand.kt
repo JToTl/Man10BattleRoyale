@@ -162,10 +162,25 @@ class MBattleEditCommand(plugin: JavaPlugin, pluginTitle: String) : CommandManag
                                                 it.first.sendMessage("${Main.pluginTitle}§ambrop delete を実行してバトルロワイヤルを削除した後に実行してください")
                                                 return@setFunction
                                             }
+                                            if(Main.editField!=null){
+                                                it.first.sendMessage("${Main.pluginTitle}§a既にセットされています")
+                                                return@setFunction
+                                            }
                                             Main.editField= EditField(ConfigManager(Main.plugin,it.second[1]))
                                             it.first.sendMessage("${Main.pluginTitle}§a設定するファイルをセットしました")
                                         }
                         )
+        )
+
+        addFirstArgument(
+                CommandObject("menu")
+                        .setExplanation("設定メニューを開く §4※開発中")
+                        .setFunction{
+                            val sender=it.first
+                            if(exitEditedFile(it.first)&&sender is Player){
+                                Main.editField!!.openMenu(sender)
+                            }
+                        }
         )
 
         addFirstArgument(
